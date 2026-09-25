@@ -1,0 +1,2 @@
+:HL["/scrape-farm-demo/v2/_next/static/chunks/1ek3zv7bsexar.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"bqjN6-9-zA6q1xV9n0cLG"}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Scrape Farm — UI preview</title>
+<style>
+  :root { color-scheme: light dark; --bg:#f6f5fa; --card:#fff; --ink:#17152a; --muted:#625f78; --line:#e2dfec; --accent:#5a49d6; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f0e16; --card:#17161f; --ink:#eceaf6; --muted:#a09cb8; --line:#2a2839; --accent:#a597ff; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; padding:48px 20px; }
+  main { max-width:760px; margin:0 auto; display:grid; gap:24px; }
+  h1 { margin:0; font-size:clamp(28px,5vw,40px); line-height:1.1; letter-spacing:-.02em; }
+  p { margin:0; color:var(--muted); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+  a.card { display:grid; gap:6px; padding:22px; border:1px solid var(--line); border-radius:16px; background:var(--card); color:inherit; text-decoration:none; }
+  a.card:hover, a.card:focus-visible { border-color:var(--accent); outline:none; }
+  a.card b { font-size:20px; }
+  a.card span { color:var(--muted); font-size:15px; }
+  a.card em { color:var(--accent); font-style:normal; font-weight:600; margin-top:6px; }
+  .note { font-size:14px; border-top:1px solid var(--line); padding-top:16px; }
+  code { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:1px 6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Scrape Farm — UI preview</h1>
+  <p>Two proposed redesigns of the Scrape Farm control plane. Open one and click around — every screen works with sample data.</p>
+  <div class="cards">
+    <a class="card" href="v1/scrape-farm/login/"><b>Version 1</b><span>Light theme · accounts table, then a page per account</span><em>Open version 1 →</em></a>
+    <a class="card" href="v2/scrape-farm/login/"><b>Version 2</b><span>Dark theme · split view with the accounts list on the left</span><em>Open version 2 →</em></a>
+  </div>
+  <p class="note">Sign in with the password <code>preview</code>. This is a preview only: all accounts, searches and runs are sample data, nothing is saved, and nothing connects to LinkedIn or the CRM.</p>
+</main>
+</body>
+</html>

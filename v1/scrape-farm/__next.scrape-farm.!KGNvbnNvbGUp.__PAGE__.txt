@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:I[43426,["/scrape-farm-demo/v1/_next/static/chunks/3vij5q4bcvs5d.js","/scrape-farm-demo/v1/_next/static/chunks/24zx7lvh6ks7z.js","/scrape-farm-demo/v1/_next/static/chunks/0p7z5uk896dau.js","/scrape-farm-demo/v1/_next/static/chunks/1lg833je-273t.js","/scrape-farm-demo/v1/_next/static/chunks/1m6-ul6v43t3o.js","/scrape-farm-demo/v1/_next/static/chunks/01n32vcr4rszo.js","/scrape-farm-demo/v1/_next/static/chunks/2crmlzdaizure.js"],"default"]
+3:I[50148,["/scrape-farm-demo/v1/_next/static/chunks/3vij5q4bcvs5d.js","/scrape-farm-demo/v1/_next/static/chunks/24zx7lvh6ks7z.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{}],[["$","script","script-0",{"src":"/scrape-farm-demo/v1/_next/static/chunks/1m6-ul6v43t3o.js","async":true}],["$","script","script-1",{"src":"/scrape-farm-demo/v1/_next/static/chunks/01n32vcr4rszo.js","async":true}],["$","script","script-2",{"src":"/scrape-farm-demo/v1/_next/static/chunks/2crmlzdaizure.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"P5jAMUm07u8WH3SyIpjjp"}
+5:null

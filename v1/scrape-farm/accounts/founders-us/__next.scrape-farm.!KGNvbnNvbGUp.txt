@@ -1,0 +1,5 @@
+1:"$Sreact.fragment"
+2:I[63332,["/scrape-farm-demo/v1/_next/static/chunks/3vij5q4bcvs5d.js","/scrape-farm-demo/v1/_next/static/chunks/24zx7lvh6ks7z.js","/scrape-farm-demo/v1/_next/static/chunks/0p7z5uk896dau.js","/scrape-farm-demo/v1/_next/static/chunks/1lg833je-273t.js"],"default"]
+3:I[32009,["/scrape-farm-demo/v1/_next/static/chunks/3vij5q4bcvs5d.js","/scrape-farm-demo/v1/_next/static/chunks/24zx7lvh6ks7z.js"],"default"]
+4:I[74466,["/scrape-farm-demo/v1/_next/static/chunks/3vij5q4bcvs5d.js","/scrape-farm-demo/v1/_next/static/chunks/24zx7lvh6ks7z.js"],"default"]
+0:{"rsc":["$","$1","c",{"children":[[["$","script","script-0",{"src":"/scrape-farm-demo/v1/_next/static/chunks/0p7z5uk896dau.js","async":true}],["$","script","script-1",{"src":"/scrape-farm-demo/v1/_next/static/chunks/1lg833je-273t.js","async":true}]],["$","$L2",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"P5jAMUm07u8WH3SyIpjjp"}

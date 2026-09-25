@@ -1,0 +1,6 @@
+:HL["/scrape-farm-demo/v2/_next/static/chunks/1ek3zv7bsexar.css","style"]
+:HL["/scrape-farm-demo/v2/_next/static/media/70bc3e132a0a741e-s.p.3t6q91iet4nsy.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/scrape-farm-demo/v2/_next/static/media/ClashGrotesk_400-s.p.38fe98i85io8v.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/scrape-farm-demo/v2/_next/static/media/ClashGrotesk_500-s.p.326biwciwyjjy.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/scrape-farm-demo/v2/_next/static/media/ClashGrotesk_600-s.p.3tbgbssi07m98.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"scrape-farm","param":null,"prefetchHints":0,"slots":{"children":{"name":"(console)","param":null,"prefetchHints":0,"slots":{"children":{"name":"(accounts)","param":null,"prefetchHints":0,"slots":{"children":{"name":"accounts","param":null,"prefetchHints":0,"slots":{"children":{"name":"accountId","param":{"type":"d","key":"agency-leads","siblings":null},"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}}}}}}}},"staleTime":300,"buildId":"bqjN6-9-zA6q1xV9n0cLG"}
