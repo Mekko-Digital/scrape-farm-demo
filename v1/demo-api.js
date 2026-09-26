@@ -58,7 +58,7 @@ const baseSettings = (tz, start, end) => ({
   scheduling: { timezone: tz, windowStart: start, windowEnd: end, enabled: true },
   jobDescriptions: { enabled: true, perSessionCap: 15, minDelaySeconds: 20, maxDelaySeconds: 60 },
   locationPacing: { minGapSeconds: 15, maxGapSeconds: 45 },
-  crm: { apiUrl: "https://crm.mekko.digital", apiKey: "demo-key-not-real" },
+  crm: { apiUrl: "https://crm.mekko.digital", apiKey: "sk_live_xxxxxxxx" },
 });
 
 const settings = {
@@ -259,7 +259,7 @@ const runs = Object.fromEntries(
   Object.keys(settings).map((id) => [id, id === "founders-us" ? [] : makeRuns(id)]),
 );
 
-let crm = { apiUrl: "https://crm.mekko.digital", apiKey: "demo-key-not-real" };
+let crm = { apiUrl: "https://crm.mekko.digital", apiKey: "sk_live_4f9a2c7e81b3" };
 const setup = () => ({
   configured: Boolean(crm.apiUrl && crm.apiKey),
   ok: false,
@@ -433,6 +433,23 @@ async function api(method, url, body) {
 }
 
 
+  // Sign-in is remembered for this browser tab, like the real app's cookie:
+  // signing out forgets it, and every page but the login one then sends the
+  // visitor back to log in.
+  const base = (document.currentScript && document.currentScript.src
+    ? new URL(document.currentScript.src).pathname
+    : "/demo-api.js").replace(/\/demo-api\.js$/, "");
+  const KEY = "scrape-farm-demo-signed-in:" + base;
+  const signedIn = () => {
+    try { return sessionStorage.getItem(KEY) === "1"; } catch (e) { return true; }
+  };
+  const setSignedIn = (on) => {
+    try { on ? sessionStorage.setItem(KEY, "1") : sessionStorage.removeItem(KEY); } catch (e) {}
+  };
+  if (!signedIn() && !/\/scrape-farm\/login\/?$/.test(location.pathname)) {
+    location.replace(base + "/scrape-farm/login/");
+  }
+
   const realFetch = window.fetch.bind(window);
   window.fetch = async function (input, init) {
     const href = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
@@ -443,9 +460,14 @@ async function api(method, url, body) {
     let body = {};
     try { body = init && typeof init.body === "string" ? JSON.parse(init.body) : {}; } catch (e) { body = {}; }
     if (url.pathname === "/api/scrape-farm/auth") {
-      return body.password === "preview" ? resp(200, { ok: true }) : resp(401, { error: "Invalid password" });
+      if (body.password !== "preview") return resp(401, { error: "Invalid password" });
+      setSignedIn(true);
+      return resp(200, { ok: true });
     }
-    if (url.pathname === "/api/scrape-farm/auth/logout") return resp(200, { ok: true });
+    if (url.pathname === "/api/scrape-farm/auth/logout") {
+      setSignedIn(false);
+      return resp(200, { ok: true });
+    }
     const r = await api(method, url, body);
     return r || resp(404, { error: "Not found" });
   };
