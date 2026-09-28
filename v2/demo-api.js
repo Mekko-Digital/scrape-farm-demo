@@ -58,7 +58,7 @@ const baseSettings = (tz, start, end) => ({
   scheduling: { timezone: tz, windowStart: start, windowEnd: end, enabled: true },
   jobDescriptions: { enabled: true, perSessionCap: 15, minDelaySeconds: 20, maxDelaySeconds: 60 },
   locationPacing: { minGapSeconds: 15, maxGapSeconds: 45 },
-  crm: { apiUrl: "https://crm.mekko.digital", apiKey: "sk_live_xxxxxxxx" },
+  crm: { apiUrl: "https://crm.mekko.digital", apiKey: "demo-key-not-real" },
 });
 
 const settings = {
@@ -95,12 +95,15 @@ const settings = {
         keywords: "fintech",
         locations: ["United Kingdom"],
         companySizes: ["size_51_200", "size_201_500"],
+        // Own hours inside the account's 09:00–21:00 (ADR-0031).
+        schedule: { hours: { start: "10:00", end: "14:00" } },
       },
       {
         vertical: "posts",
         keywords: '"we\'re hiring" design',
         datePosted: "past_24h",
         sortBy: "date",
+        schedule: { paused: true },
       },
     ],
   },
@@ -132,6 +135,11 @@ const settings = {
     searches: [{ vertical: "people", keywords: "marketing director", locations: ["Netherlands"] }],
   },
 };
+
+// Every search has a stable id, as the container gives them (ADR-0031).
+const withIds = (id, searches) =>
+  searches.map((s, i) => (s.id ? s : { ...s, id: `${id}-s${i + 1}` }));
+for (const id of Object.keys(settings)) settings[id].searches = withIds(id, settings[id].searches);
 
 function makePlan(id, generate = false) {
   const s = settings[id].scheduling;
@@ -209,6 +217,18 @@ const rec = (r, i, runId) => ({
   scrapedAt: new Date().toISOString(),
 });
 
+/** Whether `at` falls inside `hours` on the account's clock — the rule the
+ *  container applies (ADR-0031), so the sample history is one it could make. */
+function withinHours(at, tz, { start, end }) {
+  const t = new Intl.DateTimeFormat("en-GB", {
+    timeZone: tz,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(at);
+  return start <= end ? t >= start && t <= end : t >= start || t <= end;
+}
+
 function makeRuns(id) {
   const out = [];
   const now = Date.now();
@@ -217,17 +237,45 @@ function makeRuns(id) {
     const dur = (60 + ((i * 53) % 400)) * 1000;
     const failJobs = i % 6 === 1;
     const failAll = i % 11 === 4;
+    // The searches that took part: paused ones never do, own-hours ones only
+    // some of the time (ADR-0031).
+    const tz = settings[id].scheduling.timezone;
+    const taking = settings[id].searches.filter(
+      (s) =>
+        !s.schedule?.paused && (!s.schedule?.hours || withinHours(started, tz, s.schedule.hours)),
+    );
+    const searchReads = taking.flatMap((s, k) => {
+      const labels = s.locations?.length ? s.locations : [null];
+      // Now and then the operator stops a search mid-session.
+      if (i % 9 === 2 && k === 0) {
+        return [
+          {
+            kind: "search",
+            outcome: "ok",
+            ...(labels[0] ? { reason: labels[0], location: labels[0] } : {}),
+            search: s.id,
+          },
+          { kind: "search", outcome: "stopped", reason: "stopped by the operator", search: s.id },
+        ];
+      }
+      return labels.map((label) => ({
+        kind: "search",
+        outcome: "ok",
+        ...(label ? { reason: label, location: label } : {}),
+        search: s.id,
+      }));
+    });
     const outcomes = failAll
       ? [
           {
-            kind: "people",
+            kind: "session",
             outcome: "failed",
             reason:
               "LinkedIn returned a security checkpoint (HTTP 999) before the first results page loaded. The session cookie is probably stale — reconnect the account from its page, then run Verify now to confirm it reads live data again.",
           },
         ]
       : [
-          { kind: "people", outcome: "ok" },
+          { kind: "company", outcome: "ok" },
           failJobs
             ? {
                 kind: "jobs",
@@ -236,12 +284,14 @@ function makeRuns(id) {
                   "Timed out waiting for the jobs results list after 30000ms (selector .jobs-search-results-list).",
               }
             : { kind: "jobs", outcome: "ok" },
-          { kind: "companies", outcome: "ok" },
-          ...(i % 3 === 0 ? [{ kind: "posts", outcome: "ok" }] : []),
+          ...searchReads,
         ];
     const records = failAll
       ? []
-      : sampleRecords.slice(0, 2 + (i % 5)).map((r, j) => rec(r, j, `r${i}`));
+      : sampleRecords.slice(0, 2 + (i % 5)).map((r, j) => ({
+          ...rec(r, j, `r${i}`),
+          ...(taking.length ? { search: taking[j % taking.length].id } : {}),
+        }));
     out.push({
       id: 1000 - i,
       accountId: id,
@@ -259,7 +309,24 @@ const runs = Object.fromEntries(
   Object.keys(settings).map((id) => [id, id === "founders-us" ? [] : makeRuns(id)]),
 );
 
-let crm = { apiUrl: "https://crm.mekko.digital", apiKey: "sk_live_4f9a2c7e81b3" };
+// The sample session (ADR-0031): connected accounts are mid-session, reading
+// their first search that is neither paused nor stopped by the operator.
+const skipped = {};
+function sessionFor(id) {
+  const acc = accounts.find((a) => a.accountId === id);
+  const live = acc && (acc.state === "connected" || acc.state === "scraping");
+  const next = live
+    ? settings[id].searches.find((s) => !s.schedule?.paused && !skipped[id]?.has(s.id))
+    : undefined;
+  if (!next) return { running: false, startedAt: null, searchId: null };
+  return {
+    running: true,
+    startedAt: new Date(Date.now() - 4 * 60000).toISOString(),
+    searchId: next.id,
+  };
+}
+
+let crm = { apiUrl: "https://crm.mekko.digital", apiKey: "demo-key-not-real" };
 const setup = () => ({
   configured: Boolean(crm.apiUrl && crm.apiKey),
   ok: false,
@@ -325,7 +392,6 @@ const view = (a) => ({
   },
 });
 
-
   const resp = (status, obj) =>
     new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
 // ---------- routes ----------
@@ -368,10 +434,22 @@ async function api(method, url, body) {
       return resp(201, { ok: true });
     }
     if (sub === "/stop") return resp(200, { ok: true });
+    // What the session is reading now (ADR-0031). The sample farm keeps one
+    // session running on each connected account, working through its searches.
+    if (sub === "/session") return resp(200, sessionFor(id));
+    const stop = sub.match(/^\/searches\/([^/]+)\/stop$/);
+    if (stop) {
+      const status = sessionFor(id);
+      if (!status.running || status.searchId !== decodeURIComponent(stop[1])) {
+        return resp(200, { stopping: false });
+      }
+      skipped[id] = new Set([...(skipped[id] ?? []), decodeURIComponent(stop[1])]);
+      return resp(200, { stopping: true });
+    }
     if (sub === "/settings") {
       if (method === "GET") return resp(200, { settings: settings[id] });
-      const body = body;
       settings[id] = { ...settings[id], ...body };
+      settings[id].searches = withIds(id, settings[id].searches ?? []);
       plans[id] = makePlan(id);
       return resp(200, { settings: settings[id] });
     }
@@ -396,7 +474,10 @@ async function api(method, url, body) {
     if (sub === "/runs") {
       const limit = Number(url.searchParams.get("limit") ?? 50);
       const offset = Number(url.searchParams.get("offset") ?? 0);
-      const list = runs[id] ?? [];
+      const only = url.searchParams.get("search");
+      const list = (runs[id] ?? []).filter(
+        (r) => !only || JSON.parse(r.outcomes).some((o) => o.search === only),
+      );
       return resp(200, {
         runs: list.slice(offset, offset + limit),
         pagination: { total: list.length },
@@ -420,7 +501,6 @@ async function api(method, url, body) {
   }
   if (p === "/api/scrape-farm/settings") {
     if (method === "GET") return resp(200, { settings: { crm } });
-    const body = body;
     await new Promise((r) => setTimeout(r, 900));
     crm = body.crm ?? crm;
     return resp(200, { settings: { crm }, setup: setup() });
@@ -431,6 +511,7 @@ async function api(method, url, body) {
   }
   return null;
 }
+
 
 
   // Sign-in is remembered for this browser tab, like the real app's cookie:
