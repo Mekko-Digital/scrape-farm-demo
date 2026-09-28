@@ -318,11 +318,14 @@ function sessionFor(id) {
   const next = live
     ? settings[id].searches.find((s) => !s.schedule?.paused && !skipped[id]?.has(s.id))
     : undefined;
-  if (!next) return { running: false, startedAt: null, searchId: null };
+  if (!next) return { running: false, startedAt: null, searchId: null, lineup: [] };
   return {
     running: true,
     startedAt: new Date(Date.now() - 4 * 60000).toISOString(),
     searchId: next.id,
+    // The whole session's line-up, stopped searches included — they had their
+    // turn.
+    lineup: settings[id].searches.filter((s) => !s.schedule?.paused).map((s) => s.id),
   };
 }
 
